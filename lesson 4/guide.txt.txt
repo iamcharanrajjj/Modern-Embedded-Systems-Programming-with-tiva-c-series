@@ -1,0 +1,33 @@
+use t4mc123h6gpm datasheet
+1. search the datasheet for the memory map.
+2. look for GPIO port F, to control your LED in memory map
+3. copy the starting address of gpio F to the memory view and watch what comes up,
+4. this would make to look as if the memory blocks are empty, the typical reason is the h/w block is switched off
+   this is the common technique to block the certain parts of the switch 
+5. first we need to discover how to turn on the GPIO port- F
+
+the logical related group of bits are documented below the register block diagram
+1. in the datasheet check out the page no. 340, which says about :  General-Purpose  Input/Output  Run  Mode  Clock  Gating  Control (RCGCGPIO),
+> whose offset is 0x608
+> whose base address is 0x400F.E000
+addup both the address and load 0x00000020 in the data field, which is same as 5 in hexadecimal cuz after 15 i.e 16 = 1; 17 = 2;.... 20 = 5
+we wanted 5 cuz, see.. in the diagram (RW-headers) R0-R5 must be set to high.
+in the typical format of the register block diagram : 
+rw -> read write;
+ro ->read only; 
+wo -> write only;
+
+to select the pin directions output: checkout the page no.663: Register  2:  GPIO  Direction  (GPIODIR)
+> whose offset address is 0x400
+now set the bits  of the lower nibble first - third to 1, fourth bit 0 i.e 'e' in hex.
+
+to set the function of the pins to digital output checkout the page no.682: register  8: GPIO  Digital  Enable  (GPIODEN),
+> whose offset is 0x51C/ if you don't find use f address block
+further down with gpio - F address block, now set the bits of lower nibble, first - third to 1, fourth bit 0 i.e 'e' in hex.
+
+
+now, finally control the LED through GPIO-F data register located at, 40025'3fc/ 0x3fc i.e our last memory block with lower nibble
+writing hex '2'(for RED) so that bits are setting up the lowest bit 1.
+writing hex '4'(for blue) so that bits are setting up the lowest bit 2.
+writing hex '8'(for green) so that bits are setting up the lowest bit 3.
+try to turn off the led by writing zero at the same location.
